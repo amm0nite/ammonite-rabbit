@@ -1,0 +1,23 @@
+{
+  "name": "rabbit-helper",
+  "version": "1.0.0",
+  "description": "Node.js helper for amqplib",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amm0nite/rabbit-helper.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/amm0nite/rabbit-helper/issues"
+  },
+  "homepage": "https://github.com/amm0nite/rabbit-helper#readme",
+  "dependencies": {
+    "amqplib": "^0.4.2",
+    "winston": "^2.2.0"
+  }
+}
