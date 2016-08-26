@@ -8,14 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/amm0nite/rabbit-helper.git"
+    "url": "ssh://ammonite@vault.phacility.com/diffusion/11/rabbit-helper.git"
   },
   "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/amm0nite/rabbit-helper/issues"
-  },
-  "homepage": "https://github.com/amm0nite/rabbit-helper#readme",
+  "private": true,
   "dependencies": {
     "amqplib": "^0.4.2",
     "winston": "^2.2.0"
