@@ -1,5 +1,5 @@
 {
-  "name": "rabbit-helper",
+  "name": "ammonite-rabbit",
   "version": "1.0.0",
   "description": "Node.js helper for amqplib",
   "main": "index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "ssh://ammonite@vault.phacility.com/diffusion/11/rabbit-helper.git"
+    "url": "ssh://ammonite@vault.phacility.com/source/ammonite-rabbit.git"
   },
   "author": "",
   "private": true,
