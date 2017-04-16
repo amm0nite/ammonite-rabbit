@@ -79,9 +79,13 @@ function close() {
 }
 
 class Publisher {
-    constructor(queueName) {
+    constructor(queueName, options) {
         this.queueName = queueName;
         this.channelName = createName('publisher', queueName);
+        if (!options) {
+            options = {};
+        }
+        this.options = options;
     }
 
     publish(message, next) {
@@ -101,9 +105,13 @@ class Publisher {
 }
 
 class Consumer {
-    constructor(queueName, channelName) {
+    constructor(queueName, options) {
         this.queueName = queueName;
         this.channelName = createName('consumer', queueName);
+        if (!options) {
+            options = {};
+        }
+        this.options = options;
     }
 
     consume(process) {
@@ -129,6 +137,9 @@ class Consumer {
         withChannel(this.channelName, function (err, chan) {
             if (err) { return errorRecovery(err); }
             
+            if (this.options.prefetch_count) {
+                chan.prefetch(this.options.prefetch_count);
+            }
             chan.checkQueue(queueName);
             
             chan.consume(queueName, function (msg) {
