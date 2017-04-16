@@ -118,8 +118,8 @@ class Consumer {
         if (!process) { process = function() {}; }
 
         var queueName = this.queueName;
+        var options = this.options;
         var restarting = false;
-        var that = this;
 
         var errorRecovery = function(err) {
             logger.error("consumer failed: " + err);
@@ -137,8 +137,8 @@ class Consumer {
         withChannel(this.channelName, function (err, chan) {
             if (err) { return errorRecovery(err); }
             
-            if (this.options.prefetch_count) {
-                chan.prefetch(this.options.prefetch_count);
+            if (options.prefetch_count) {
+                chan.prefetch(options.prefetch_count);
             }
             chan.checkQueue(queueName);
             
