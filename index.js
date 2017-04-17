@@ -120,6 +120,7 @@ class Consumer {
         var queueName = this.queueName;
         var options = this.options;
         var restarting = false;
+        var that = this;
 
         var errorRecovery = function(err) {
             logger.error("consumer failed: " + err);
