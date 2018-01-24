@@ -97,10 +97,13 @@ class Publisher {
 
         withChannel(this.channelName, (err, chan) => {
             if (err) return next(err);
-            
-            chan.assertQueue(this.queueName, state.defaultOptions);
-            chan.sendToQueue(this.queueName, new Buffer(message), {persistent: true});
-            return next(null);
+
+            chan.assertQueue(this.queueName, state.defaultOptions, (err) => {
+                if (err) return next(err);
+
+                chan.sendToQueue(this.queueName, new Buffer(message), {persistent: true});
+                return next(null);
+            });
         });
     }
 }
