@@ -6,7 +6,8 @@ var state = {
     url : "amqp://localhost",
     index : 0,
     connection : null,
-    channels : {}
+    channels : {},
+    defaultOptions: { durable: true }
 };
 
 function configure(url) {
@@ -23,18 +24,18 @@ function withConnection(next) {
         return next(null, state.connection);
     }
     
-    amqp.connect(state.url, function(err, conn) {
-        if (err) { return next(err); }
+    amqp.connect(state.url, (err, conn) => {
+        if (err) return next(err);
         
         logger.info('connection');
         state.connection = conn;
         
-        state.connection.on('close', function () {
+        state.connection.on('close', () => {
             logger.warn("connection closed");
             state.connection = null;
         });
         
-        state.connection.on('error', function (err) {
+        state.connection.on('error', (err) => {
             logger.error("connection error", err);
             state.connection = null;
         });
@@ -44,25 +45,25 @@ function withConnection(next) {
 }
 
 function withChannel(name, next) {
-    withConnection(function (err, conn) {
-        if (err) { return next(err); }
+    withConnection((err, conn) => {
+        if (err) return next(err);
         
         if (state.channels[name]) {
             return next(null, state.channels[name]);
         }
         
-        conn.createChannel(function(err, chan) {
-            if (err) { return next(err); }
+        conn.createChannel((err, chan) => {
+            if (err) return next(err);
             
             logger.info('channel ' + name);
             state.channels[name] = chan;
             
-            state.channels[name].on('close', function () {
+            state.channels[name].on('close', () => {
                 logger.warn("channel " + name + " closed");
                 delete state.channels[name];
             });
 
-            state.channels[name].on('error', function (err) {
+            state.channels[name].on('error', (err) => {
                 logger.error("channel " + name + " error", err);
                 delete state.channels[name];
             });
@@ -89,16 +90,16 @@ class Publisher {
     }
 
     publish(message, next) {
-        if (!next) { next = function() {}; }
+        if (!next) {
+            next = () => {};
+        }
         message = message + '';
 
-        var queueName = this.queueName;
-
-        withChannel(this.channelName, function (err, chan) {
-            if (err) { return next(err); }
+        withChannel(this.channelName, (err, chan) => {
+            if (err) return next(err);
             
-            chan.assertQueue(queueName, {durable: true});
-            chan.sendToQueue(queueName, new Buffer(message), {persistent: true});
+            chan.assertQueue(this.queueName, state.defaultOptions);
+            chan.sendToQueue(this.queueName, new Buffer(message), {persistent: true});
             return next(null);
         });
     }
@@ -115,19 +116,19 @@ class Consumer {
     }
 
     consume(process) {
-        if (!process) { process = function() {}; }
+        if (!process) {
+            process = () => {};
+        }
 
-        var queueName = this.queueName;
-        var options = this.options;
         var restarting = false;
         var that = this;
 
-        var errorRecovery = function(err) {
-            logger.error("consumer failed: " + err);
+        var errorRecovery = (err) => {
+            logger.error(err);
             if (!restarting) {
                 restarting = true;
                 logger.info("consumer restarting");
-                setTimeout(function() { that.consume(process); }, 1000);
+                setTimeout(() => { that.consume(process); }, 1000);
             }
             else {
                 logger.debug("consumer already restarting");
@@ -135,33 +136,34 @@ class Consumer {
             return;
         };
 
-        withChannel(this.channelName, function (err, chan) {
-            if (err) { return errorRecovery(err); }
+        withChannel(this.channelName, (err, chan) => {
+            if (err) return errorRecovery(err);
             
-            if (options.prefetch_count) {
-                chan.prefetch(options.prefetch_count);
+            if (this.options.prefetch_count) {
+                chan.prefetch(this.options.prefetch_count);
             }
-            chan.checkQueue(queueName);
-            
-            chan.consume(queueName, function (msg) {
-                if (!msg) {
-                    return errorRecovery('empty');
-                }
 
-                var decoder = new StringDecoder('utf8');
-                var content = decoder.end(msg.content);
+            chan.assertQueue(this.queueName, state.defaultOptions, (err) => {
+                if (err) return errorRecovery(err);
 
-                var done = function() { chan.ack(msg); };
-                process(content, done);
+                chan.consume(this.queueName, (msg) => {
+                    if (!msg) {
+                        return errorRecovery('empty');
+                    }
+    
+                    var decoder = new StringDecoder('utf8');
+                    var content = decoder.end(msg.content);
+    
+                    var done = () => { chan.ack(msg); };
+                    process(content, done);
+                });
             });
 
-            chan.on('close', function() {
+            chan.on('close', () => {
                 return errorRecovery('channel_closed'); 
             });
         });
     }
 }
 
-exports.configure = configure;
-exports.Publisher = Publisher;
-exports.Consumer = Consumer;
+module.exports = { configure, Publisher, Consumer };
