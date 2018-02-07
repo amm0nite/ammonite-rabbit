@@ -3,10 +3,11 @@ var amqp = require('amqplib/callback_api');
 var StringDecoder = require('string_decoder').StringDecoder;
 
 var state = {
-    url : "amqp://localhost",
-    index : 0,
-    connection : null,
-    channels : {},
+    url:            "amqp://localhost",
+    index:          0,
+    connection:     null,
+    connecting:     false,
+    channels:       {},
     defaultOptions: { durable: true }
 };
 
@@ -24,7 +25,16 @@ function withConnection(next) {
         return next(null, state.connection);
     }
     
+    if (state.connecting) {
+        return setTimeout(() => {
+            withConnection(next);
+        }, 0);
+    }
+
+    state.connecting = true;
+
     amqp.connect(state.url, (err, conn) => {
+        state.connecting = false;
         if (err) return next(err);
         
         logger.info('connection');
