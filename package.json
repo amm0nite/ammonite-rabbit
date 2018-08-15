@@ -8,8 +8,17 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "private": true,
   "dependencies": {
     "amqplib": "^0.5.2"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amm0nite/ammonite-rabbit.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/amm0nite/ammonite-rabbit/issues"
+  },
+  "homepage": "https://github.com/amm0nite/ammonite-rabbit#readme"
 }
