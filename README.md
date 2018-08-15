@@ -1,2 +1,2 @@
-# rabbit-helper
-Node.js helper for amqplib
+# ammonite-rabbit
+Node.js amqplib Helper
