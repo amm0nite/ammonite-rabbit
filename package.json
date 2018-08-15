@@ -1,7 +1,7 @@
 {
   "name": "ammonite-rabbit",
   "version": "1.0.0",
-  "description": "Node.js helper for amqplib",
+  "description": "Node.js amqplib Helper",
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
