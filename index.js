@@ -1,6 +1,6 @@
-var logger = require('winston');
-var amqp = require('amqplib/callback_api');
-var StringDecoder = require('string_decoder').StringDecoder;
+const debug = require('debug')('rabbit');
+const amqp = require('amqplib/callback_api');
+const StringDecoder = require('string_decoder').StringDecoder;
 
 var state = {
     url:            "amqp://localhost",
@@ -37,16 +37,16 @@ function withConnection(next) {
         state.connecting = false;
         if (err) return next(err);
         
-        logger.info('connection');
+        debug('connection');
         state.connection = conn;
         
         state.connection.on('close', () => {
-            logger.warn("connection closed");
+            debug("connection closed");
             state.connection = null;
         });
         
         state.connection.on('error', (err) => {
-            logger.error("connection error", err);
+            debug("connection error", err);
             state.connection = null;
         });
         
@@ -65,16 +65,16 @@ function withChannel(name, next) {
         conn.createChannel((err, chan) => {
             if (err) return next(err);
             
-            logger.info('channel ' + name);
+            debug('channel ' + name);
             state.channels[name] = chan;
             
             state.channels[name].on('close', () => {
-                logger.warn("channel " + name + " closed");
+                debug("channel " + name + " closed");
                 delete state.channels[name];
             });
 
             state.channels[name].on('error', (err) => {
-                logger.error("channel " + name + " error", err);
+                debug("channel " + name + " error", err);
                 delete state.channels[name];
             });
             
@@ -137,10 +137,10 @@ class Consumer {
         var that = this;
 
         var errorRecovery = (err) => {
-            logger.error(err);
+            debug(err);
             if (!restarting) {
                 restarting = true;
-                logger.info("consumer restarting");
+                debug("consumer restarting");
                 setTimeout(() => { that.consume(process); }, 1000);
             }
             else {
