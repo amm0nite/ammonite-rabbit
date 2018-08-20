@@ -144,7 +144,7 @@ class Consumer {
                 setTimeout(() => { that.consume(process); }, 1000);
             }
             else {
-                logger.debug("consumer already restarting");
+                debug("consumer already restarting");
             }
             return;
         };
