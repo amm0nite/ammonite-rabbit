@@ -101,7 +101,9 @@ class Publisher {
 
     publish(message, next) {
         if (!next) {
-            next = () => {};
+            next = (err) => {
+                if (err) return debug('publish error', err);
+            };
         }
         message = message + '';
 
