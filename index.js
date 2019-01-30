@@ -130,9 +130,9 @@ class Consumer {
         this.options = options;
     }
 
-    consume(process) {
-        if (!process) {
-            process = () => {};
+    consume(handler) {
+        if (!handler) {
+            handler = () => {};
         }
 
         var restarting = false;
@@ -143,7 +143,7 @@ class Consumer {
             if (!restarting) {
                 restarting = true;
                 debug("consumer restarting");
-                setTimeout(() => { that.consume(process); }, 1000);
+                setTimeout(() => { that.consume(handler); }, 1000);
             }
             else {
                 debug("consumer already restarting");
@@ -170,7 +170,7 @@ class Consumer {
                     var content = decoder.end(msg.content);
     
                     var done = () => { chan.ack(msg); };
-                    process(content, done);
+                    handler(content, done);
                 });
             });
 

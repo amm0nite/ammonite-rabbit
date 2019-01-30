@@ -16,8 +16,5 @@ export interface ConsumerOptions {
 
 export class Consumer{
     constructor(queueName: string, options?: ConsumerOptions);
-    consume(process:(content: string, done:() => void) => void);
+    consume(handler:(content: string, done:() => void) => void);
 }
-
-// NOTES
-// http://ivanz.com/2016/06/07/how-does-typescript-discover-type-declarations-definitions-javascript
