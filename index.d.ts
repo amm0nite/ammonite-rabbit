@@ -10,6 +10,11 @@ export class Publisher{
     publish(message: string, next?:(err:any | null) => void);
 }
 
+export class ExchangePublisher{
+    constructor(exchangeName: string, exchangeType: string, options?: PublisherOptions);
+    publish(routingKey: string, message: string, next?:(err:any | null) => void);
+}
+
 export interface ConsumerOptions {
     prefetch_count?: number;
 }
