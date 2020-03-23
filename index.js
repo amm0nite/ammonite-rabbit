@@ -15,9 +15,9 @@ function configure(url) {
     state.url = url;
 }
 
-function createName(type, queueName) {
+function createName(type, name) {
     state.index++;
-    return [type, queueName, state.index].join('_');
+    return [type, name, state.index].join('_');
 }
 
 function withConnection(next) {
@@ -92,7 +92,7 @@ function close() {
 class Publisher {
     constructor(queueName, options) {
         this.queueName = queueName;
-        this.channelName = createName('publisher', queueName);
+        this.channelName = createName('direct_publisher', queueName);
         if (!options) {
             options = {};
         }
@@ -114,6 +114,38 @@ class Publisher {
                 if (err) return next(err);
 
                 chan.sendToQueue(this.queueName, new Buffer(message), {persistent: true});
+                return next(null);
+            });
+        });
+    }
+}
+
+class ExchangePublisher {
+    constructor(exchangeName, exchangeType, options) {
+        this.exchangeName = exchangeName;
+        this.exchangeType = exchangeType;
+        this.channelName  = createName('exchange_publisher', exchangeName);
+        if (!options) {
+            options = {};
+        }
+        this.options = options;
+    }
+
+    publish(routingKey, message, next) {
+        if (!next) {
+            next = (err) => {
+                if (err) return debug('publish error', err);
+            };
+        }
+        message = message + '';
+
+        withChannel(this.channelName, (err, chan) => {
+            if (err) return next(err);
+
+            chan.assertExchange(this.exchangeName, this.exchangeType, state.defaultOptions, (err) => {
+                if (err) return next(err);
+
+                chan.publish(this.exchangeName, routingKey, new Buffer(message), {persistent: true});
                 return next(null);
             });
         });
@@ -181,4 +213,4 @@ class Consumer {
     }
 }
 
-module.exports = { configure, Publisher, Consumer };
+module.exports = { configure, Publisher, ExchangePublisher, Consumer };
