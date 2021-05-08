@@ -1,4 +1,4 @@
-
+const util = require('util');
 const debug = util.debuglog('rabbit');
 const amqp = require('amqplib/callback_api');
 const StringDecoder = require('string_decoder').StringDecoder;
