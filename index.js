@@ -1,4 +1,5 @@
-const debug = require('debug')('rabbit');
+
+const debug = util.debuglog('rabbit');
 const amqp = require('amqplib/callback_api');
 const StringDecoder = require('string_decoder').StringDecoder;
 
@@ -24,7 +25,7 @@ function withConnection(next) {
     if (state.connection) {
         return next(null, state.connection);
     }
-    
+
     if (state.connecting) {
         return setTimeout(() => {
             withConnection(next);
@@ -36,20 +37,20 @@ function withConnection(next) {
     amqp.connect(state.url, (err, conn) => {
         state.connecting = false;
         if (err) return next(err);
-        
+
         debug('connection');
         state.connection = conn;
-        
+
         state.connection.on('close', () => {
             debug("connection closed");
             state.connection = null;
         });
-        
+
         state.connection.on('error', (err) => {
             debug("connection error", err);
             state.connection = null;
         });
-        
+
         return next(null, state.connection);
     });
 }
@@ -57,17 +58,17 @@ function withConnection(next) {
 function withChannel(name, next) {
     withConnection((err, conn) => {
         if (err) return next(err);
-        
+
         if (state.channels[name]) {
             return next(null, state.channels[name]);
         }
-        
+
         conn.createChannel((err, chan) => {
             if (err) return next(err);
-            
+
             debug('channel ' + name);
             state.channels[name] = chan;
-            
+
             state.channels[name].on('close', () => {
                 debug("channel " + name + " closed");
                 delete state.channels[name];
@@ -77,7 +78,7 @@ function withChannel(name, next) {
                 debug("channel " + name + " error", err);
                 delete state.channels[name];
             });
-            
+
             return next(null, state.channels[name]);
         });
     });
@@ -185,7 +186,7 @@ class Consumer {
 
         withChannel(this.channelName, (err, chan) => {
             if (err) return errorRecovery(err);
-            
+
             if (this.options.prefetch_count) {
                 chan.prefetch(this.options.prefetch_count);
             }
@@ -197,17 +198,17 @@ class Consumer {
                     if (!msg) {
                         return errorRecovery('empty');
                     }
-    
+
                     var decoder = new StringDecoder('utf8');
                     var content = decoder.end(msg.content);
-    
+
                     var done = () => { chan.ack(msg); };
                     handler(content, done);
                 });
             });
 
             chan.on('close', () => {
-                return errorRecovery('channel_closed'); 
+                return errorRecovery('channel_closed');
             });
         });
     }
