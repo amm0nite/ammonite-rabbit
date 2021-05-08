@@ -1,0 +1,9 @@
+rabbit:
+    image: rabbitmq:management
+    container_name: rabbitmq-test
+    environment:
+      RABBITMQ_DEFAULT_USER: "username"
+      RABBITMQ_DEFAULT_PASS: "password"
+    ports:
+      - "5672:5672"
+      - "15672:15672"

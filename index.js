@@ -1,7 +1,6 @@
 const util = require('util');
 const debug = util.debuglog('rabbit');
 const amqp = require('amqplib/callback_api');
-const StringDecoder = require('string_decoder').StringDecoder;
 
 var state = {
     url:            "amqp://localhost",
@@ -114,7 +113,7 @@ class Publisher {
             chan.assertQueue(this.queueName, state.defaultOptions, (err) => {
                 if (err) return next(err);
 
-                chan.sendToQueue(this.queueName, new Buffer(message), {persistent: true});
+                chan.sendToQueue(this.queueName, Buffer.from(message), {persistent: true});
                 return next(null);
             });
         });
@@ -146,7 +145,7 @@ class ExchangePublisher {
             chan.assertExchange(this.exchangeName, this.exchangeType, state.defaultOptions, (err) => {
                 if (err) return next(err);
 
-                chan.publish(this.exchangeName, routingKey, new Buffer(message), {persistent: true});
+                chan.publish(this.exchangeName, routingKey, Buffer.from(message), {persistent: true});
                 return next(null);
             });
         });
@@ -199,8 +198,7 @@ class Consumer {
                         return errorRecovery('empty');
                     }
 
-                    var decoder = new StringDecoder('utf8');
-                    var content = decoder.end(msg.content);
+                    var content = msg.content.toString();
 
                     var done = () => { chan.ack(msg); };
                     handler(content, done);
