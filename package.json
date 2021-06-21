@@ -9,7 +9,7 @@
   },
   "author": "",
   "dependencies": {
-    "amqplib": "^0.7.1"
+    "amqplib": "^0.8.0"
   },
   "devDependencies": {},
   "repository": {
