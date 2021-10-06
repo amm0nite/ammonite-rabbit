@@ -2,7 +2,7 @@ const util = require('util');
 const debug = util.debuglog('rabbit');
 const amqp = require('amqplib/callback_api');
 
-var state = {
+const state = {
     url:            "amqp://localhost",
     index:          0,
     connection:     null,
