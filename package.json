@@ -9,9 +9,8 @@
   },
   "author": "",
   "dependencies": {
-    "amqplib": "^0.8.0"
+    "amqplib": "^0.10.3"
   },
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/amm0nite/ammonite-rabbit.git"
